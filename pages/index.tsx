@@ -5,9 +5,9 @@ import { StaticImageData } from "next/image";
 
 import styles from "../styles/Home.module.css";
 
-import { TraitPalette, SketchPane, CustomConnectButton } from "./components";
-import { Container, Canvas, Button, H1 } from "./components/common"
-import InputBox from "./components/Input";
+import { TraitPalette, SketchPane, CustomConnectButton } from "../components";
+import { Container, Canvas, Button, H1 } from "../components/common"
+import InputBox from "../components/Input";
 
 const HomePageContainer = styled(Container)({
     display: "flex",
