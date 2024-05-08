@@ -5,6 +5,7 @@ import Image, { StaticImageData } from "next/image"
 
 import { Container, H1, H3, Button } from "./common"
 import { traits } from "../constants"
+import { backgrounds, bases } from "../constants/image"
 
 const TraitPaletteContainer = styled(Container)({
     position: "relative",
@@ -70,6 +71,20 @@ interface TraitPalettePropType {
 
 const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
     const [activeItemInTraits, setActiveItemInTraits] = useState<{ [key: number]: number }>()
+    const [traitList, setTraitList] = useState<Array<{ name: string, items: Array<StaticImageData> }>>([])
+
+    const [backgroundIndex, setBackgroundIndex] = useState<number>(0)
+    const [baseIndex, setBaseIndex] = useState<number>(0)
+
+    const handleBackgroundSelection = (traitIndex: number, itemIndex: number, item: StaticImageData) => {
+        setBackgroundIndex(itemIndex)
+        onTraitSelect(traitIndex, itemIndex, item)
+    }
+
+    const handleBaseSelection = (traitIndex: number, itemIndex: number, item: StaticImageData) => {
+        setBaseIndex(itemIndex)
+        onTraitSelect(traitIndex, itemIndex, item)
+    }
 
     const handleTraitSelection = (traitIndex: number, itemIndex: number, item: StaticImageData) => {
         setActiveItemInTraits({ ...activeItemInTraits, [traitIndex]: itemIndex })
@@ -77,10 +92,27 @@ const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
     }
 
     useEffect(() => {
+        onTraitSelect(0, 0, backgrounds.items[0])
+        onTraitSelect(1, 0, bases.items[0])
         traits.forEach((trait, index) => {
-            onTraitSelect(index, 0, trait.items[0])
+            onTraitSelect(index + 2, 0, trait.items[0][0])
+            // handleTraitSelection(index + 2, 0, trait.items[0][0])
         })
     }, [onTraitSelect])
+
+    useEffect(() => {
+        traits.forEach((trait, index) => {
+            onTraitSelect(index + 2, 0, trait.items[baseIndex][0])
+        })
+    }, [onTraitSelect, baseIndex])
+
+    useEffect(() => {
+        const preTraits: Array<{ name: string, items: Array<StaticImageData> }> = []
+        traits.forEach((trait, index) => {
+            preTraits.push({ name: trait.name, items: trait.items[baseIndex] })
+        })
+        setTraitList(preTraits)
+    }, [baseIndex])
 
     return (
         <TraitPaletteContainer className="flex flex-col">
@@ -89,7 +121,40 @@ const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
             </Container>
             <Container className="rounded-lg bg-[#0D3043]">
                 {
-                    traits.map((item, trait_index) =>
+                    <Container className="flex flex-col px-[10px] py-[10px]">
+                        <Container className="flex">
+                            <H3 className="font-[ComicSans] text-[20px] text-white" >{backgrounds.name}</H3>
+                        </Container>
+                        <TraitsContainer className="flex traits-container" style={{ width: "500px", overflowX: "auto", gap: "10px", padding: "5px" }}>
+                            {
+                                backgrounds.items.map((item, item_index) =>
+                                    <TraitButton key={item_index} active={backgroundIndex === item_index} onClick={() => handleBackgroundSelection(0, item_index, item)}>
+                                        <TraitThumbnail alt="thumbnail image" key={item_index} src={item} />
+                                    </TraitButton>
+                                )
+                            }
+                        </TraitsContainer>
+                    </Container>
+                }
+                {
+                    <Container className="flex flex-col px-[10px] py-[10px]">
+                        <Container className="flex">
+                            <H3 className="font-[ComicSans] text-[20px] text-white" >{bases.name}</H3>
+                        </Container>
+                        <TraitsContainer className="flex traits-container" style={{ width: "500px", overflowX: "auto", gap: "10px", padding: "5px" }}>
+                            {
+                                bases.items.map((item, item_index) =>
+                                    <TraitButton key={item_index} active={baseIndex === item_index} onClick={() => handleBaseSelection(1, item_index, item)}>
+                                        <TraitThumbnail alt="thumbnail image" key={item_index} src={item} />
+                                    </TraitButton>
+
+                                )
+                            }
+                        </TraitsContainer>
+                    </Container>
+                }
+                {
+                    traitList.map((item, trait_index) =>
                         <Container key={trait_index} className="flex flex-col px-[10px] py-[10px]">
                             <Container className="flex">
                                 <H3 className="font-[ComicSans] text-[20px] text-white" >{item.name}</H3>
@@ -97,10 +162,9 @@ const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
                             <TraitsContainer className="flex traits-container" style={{ width: "500px", overflowX: "auto", gap: "10px", padding: "5px" }}>
                                 {
                                     item.items.map((item, item_index) =>
-                                        <TraitButton key={item_index} active={ activeItemInTraits && activeItemInTraits[trait_index] === item_index } onClick={() => handleTraitSelection(trait_index, item_index, item)}>
+                                        <TraitButton key={item_index} active={activeItemInTraits && activeItemInTraits[trait_index + 2] === item_index} onClick={() => handleTraitSelection(trait_index + 2, item_index, item)}>
                                             <TraitThumbnail alt="thumbnail image" key={item_index} src={item} />
                                         </TraitButton>
-
                                     )
                                 }
                             </TraitsContainer>
