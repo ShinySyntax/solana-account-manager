@@ -1,8 +1,8 @@
 // ** import background traits
-import BG_1 from "../assets/traits/Background/blue.png"
-import BG_2 from "../assets/traits/Background/dark blue.png"
-import BG_3 from "../assets/traits/Background/pink.png"
-import BG_4 from "../assets/traits/Background/yellow.png"
+import BG_1 from "../assets/traits/Backgrounds/blue.png"
+import BG_2 from "../assets/traits/Backgrounds/dark blue.png"
+import BG_3 from "../assets/traits/Backgrounds/pink.png"
+import BG_4 from "../assets/traits/Backgrounds/yellow.png"
 
 // ** import base traits
 import Base_1 from "../assets/traits/Boden/Base/Body.png"
