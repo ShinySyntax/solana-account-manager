@@ -61,12 +61,15 @@ export default function Home() {
     const CANVAS_WIDTH = 1000
     const CANVAS_HEIGHT = 1000
 
-    const { address } = useAccount()
+    const { address, isConnected } = useAccount()
 
     const canvas = useRef<HTMLCanvasElement>(null)
     const [context, setContext] = useState<CanvasRenderingContext2D | null>()
 
     const [traits, setTraits] = useState<Array<{ traitIndex: number, itemIndex: number, item: StaticImageData }>>([])
+
+    const [downloadAllowed, setDownloadAllowed] = useState<boolean>(false)
+    const [submitAllowed, setSubmitAllowed] = useState<boolean>(false)
 
     const kv = createClient({
         url: process.env.NEXT_PUBLIC_KV_REST_API_URL as string,
@@ -74,11 +77,20 @@ export default function Home() {
     })
 
     const handleSubmit = async () => {
+        if(!submitAllowed) {
+            alert("You already minted.")
+            return
+        }
         if(address) {
             try {
-                // const response = await accountsStore.set(address, true)
-                const response = await kv.hgetall('user:me')
+                const image = canvas.current?.toDataURL('image/png')
+                const response = await kv.set(address, {
+                    minted: true,
+                    image
+                })
 
+                setDownloadAllowed(true)
+                alert("Now you are allowed to download.")
                 console.log(response)
             }
             catch(error) {
@@ -86,7 +98,7 @@ export default function Home() {
             }
         }
         else {
-            console.log(address)
+            alert("Must connect wallet.")
         }
     }
 
@@ -112,11 +124,19 @@ export default function Home() {
     }
 
     const downloadImage = () => {
+        if(!downloadAllowed) {
+            alert("Please submit first.")
+            return
+        }
+
         const url = canvas.current?.toDataURL('image/png')
         const link = document.createElement('a')
         link.download = "nft-collection.png"
         link.href = url || ""
         link.click()
+
+        setSubmitAllowed(false)
+        setDownloadAllowed(false)
     }
 
     useEffect(() => {
@@ -124,6 +144,25 @@ export default function Home() {
             setContext(canvas.current?.getContext('2d'))
         }
     }, [canvas])
+
+    useEffect(() => {
+        (async () => {
+            try {
+                if(address) {
+                    const response = await kv.get(address)
+                    if(!!!response) {
+                        setSubmitAllowed(true)
+                    }
+                    else {
+                        setSubmitAllowed(false)
+                    }
+                }
+            }
+            catch(error) {
+                console.error(error)
+            }
+        })()
+    }, [address])
 
     return (
         <main className={styles.main}>
