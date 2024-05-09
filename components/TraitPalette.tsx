@@ -70,6 +70,8 @@ interface TraitPalettePropType {
 }
 
 const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
+    let activeTraits:{ [key: number]: number } = {}
+
     const [activeItemInTraits, setActiveItemInTraits] = useState<{ [key: number]: number }>()
     const [traitList, setTraitList] = useState<Array<{ name: string, items: Array<StaticImageData> }>>([])
 
@@ -96,14 +98,18 @@ const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
         onTraitSelect(1, 0, bases.items[0])
         traits.forEach((trait, index) => {
             onTraitSelect(index + 2, 0, trait.items[0][0])
-            // handleTraitSelection(index + 2, 0, trait.items[0][0])
         })
     }, [onTraitSelect])
 
     useEffect(() => {
         traits.forEach((trait, index) => {
-            setActiveItemInTraits({ ...activeItemInTraits, [index + 2]: 0 })
             onTraitSelect(index + 2, 0, trait.items[baseIndex][0])
+        })
+        setActiveItemInTraits({
+            2: 0,
+            3: 0,
+            4: 0,
+            5: 0
         })
     }, [onTraitSelect, baseIndex])
 
@@ -148,7 +154,6 @@ const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
                                     <TraitButton key={item_index} active={baseIndex === item_index} onClick={() => handleBaseSelection(1, item_index, item)}>
                                         <TraitThumbnail alt="thumbnail image" key={item_index} src={item} />
                                     </TraitButton>
-
                                 )
                             }
                         </TraitsContainer>

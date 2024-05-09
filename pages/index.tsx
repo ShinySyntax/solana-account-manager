@@ -2,6 +2,8 @@
 import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components";
 import { StaticImageData } from "next/image";
+import { createClient } from "@vercel/kv";
+import { useAccount } from "wagmi";
 
 import styles from "../styles/Home.module.css";
 
@@ -59,10 +61,34 @@ export default function Home() {
     const CANVAS_WIDTH = 1000
     const CANVAS_HEIGHT = 1000
 
+    const { address } = useAccount()
+
     const canvas = useRef<HTMLCanvasElement>(null)
     const [context, setContext] = useState<CanvasRenderingContext2D | null>()
 
     const [traits, setTraits] = useState<Array<{ traitIndex: number, itemIndex: number, item: StaticImageData }>>([])
+
+    const kv = createClient({
+        url: process.env.NEXT_PUBLIC_KV_REST_API_URL as string,
+        token: process.env.NEXT_PUBLIC_KV_REST_API_TOKEN as string
+    })
+
+    const handleSubmit = async () => {
+        if(address) {
+            try {
+                // const response = await accountsStore.set(address, true)
+                const response = await kv.hgetall('user:me')
+
+                console.log(response)
+            }
+            catch(error) {
+                console.error(error)
+            }
+        }
+        else {
+            console.log(address)
+        }
+    }
 
     const onTraitSelect = (traitIndex: number, itemIndex: number, item: StaticImageData) => {
         const preTraits = traits
@@ -135,12 +161,12 @@ export default function Home() {
                         </Container>
                         <Container className="flex gap-[10px]">
                             <Container className="flex w-full">
-                                <PageButton className="bg-[#F5AE45] w-full rounded-lg px-[10px] py-[15px]">
+                                <PageButton onClick={handleSubmit} className="bg-[#F5AE45] w-full rounded-lg px-[10px] py-[15px]">
                                     Submit
                                 </PageButton>
                             </Container>
                             <Container className="flex w-full">
-                                <PageButton className="bg-[#ffffff] w-full rounded-lg px-[10px] py-[15px] bg-opacity-60">
+                                <PageButton onClick={downloadImage} className="bg-[#ffffff] w-full rounded-lg px-[10px] py-[15px] bg-opacity-60">
                                     Download
                                 </PageButton>
                             </Container>
