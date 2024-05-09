@@ -143,6 +143,8 @@ import Mouth_5_3 from "../assets/traits/Tremp/Mouth/Happy.png"
 import Mouth_5_4 from "../assets/traits/Tremp/Mouth/Small.png"
 import Mouth_5_5 from "../assets/traits/Tremp/Mouth/Smile.png"
 
+import Restrict from "../assets/images/restrict.png"
+
 export const backgrounds = {
     trait: "background",
     name: "Background",
@@ -154,6 +156,8 @@ export const bases = {
     name: "Base",
     items: [Base_1, Base_2, Base_3, Base_4, Base_5]
 }
+
+export const restrict = Restrict 
 
 const traits = [
     {

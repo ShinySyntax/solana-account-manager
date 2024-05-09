@@ -2,10 +2,11 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 import Image, { StaticImageData } from "next/image"
+import { useAccount } from "wagmi"
 
 import { Container, H1, H3, Button } from "./common"
 import { traits } from "../constants"
-import { backgrounds, bases } from "../constants/image"
+import { backgrounds, bases, restrict } from "../constants/image"
 
 const TraitPaletteContainer = styled(Container)({
     position: "relative",
@@ -71,6 +72,8 @@ interface TraitPalettePropType {
 
 const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
     let activeTraits:{ [key: number]: number } = {}
+
+    const { isConnected } = useAccount()
 
     const [activeItemInTraits, setActiveItemInTraits] = useState<{ [key: number]: number }>()
     const [traitList, setTraitList] = useState<Array<{ name: string, items: Array<StaticImageData> }>>([])
@@ -178,6 +181,9 @@ const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
                     )
                 }
             </Container>
+            <OverlayContainer active={!isConnected} draggable={false} >
+                <Image alt="restricted" src={restrict} />
+            </OverlayContainer>
         </TraitPaletteContainer>
     )
 }
