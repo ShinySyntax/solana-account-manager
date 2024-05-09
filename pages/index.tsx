@@ -150,6 +150,9 @@ export default function Home() {
             try {
                 if(address) {
                     const response = await kv.get(address)
+
+                    console.log(response)
+
                     if(!!!response) {
                         setSubmitAllowed(true)
                     }
