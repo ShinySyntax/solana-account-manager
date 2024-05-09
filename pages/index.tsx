@@ -76,8 +76,7 @@ export default function Home() {
     const handleSubmit = async () => {
         if(address) {
             try {
-                // const response = await accountsStore.set(address, true)
-                const response = await kv.hgetall('user:me')
+                const response = await kv.set(address, true)
 
                 console.log(response)
             }
