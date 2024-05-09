@@ -4,8 +4,10 @@ import styled from "styled-components";
 import { StaticImageData } from "next/image";
 import { createClient } from "@vercel/kv";
 import { useAccount } from "wagmi";
+import { ToastContainer, toast } from "react-toastify"
 
 import styles from "../styles/Home.module.css";
+import 'react-toastify/dist/ReactToastify.css';
 
 import { TraitPalette, SketchPane, CustomConnectButton } from "../components";
 import { Container, Canvas, Button, H1 } from "../components/common"
@@ -51,6 +53,21 @@ const PageButton = styled(Button)({
     textAlign: 'center'
 })
 
+const OverlayContainer = styled(Container)<{ active?: boolean }>(({ active }) => ({
+    display: active ? "flex" : "none",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    top: "0px",
+    left: "0px",
+    width: "100%",
+    height: "100%",
+    background: "rgba(0, 0, 0, 0.5)",
+    borderRadius: "10px",
+    zIndex: 2,
+    color: "#ffffff"
+}))
+
 declare global {
     interface Window {
         ethereum?: any
@@ -70,6 +87,8 @@ export default function Home() {
 
     const [downloadAllowed, setDownloadAllowed] = useState<boolean>(false)
     const [submitAllowed, setSubmitAllowed] = useState<boolean>(false)
+    const [generating, setGnerating] = useState<boolean>(false)
+
 
     const kv = createClient({
         url: process.env.NEXT_PUBLIC_KV_REST_API_URL as string,
@@ -78,9 +97,10 @@ export default function Home() {
 
     const handleSubmit = async () => {
         if(!submitAllowed) {
-            alert("You already minted.")
+            toast.error("You already minted.")
             return
         }
+
         if(address) {
             try {
                 const image = canvas.current?.toDataURL('image/png')
@@ -90,7 +110,7 @@ export default function Home() {
                 })
 
                 setDownloadAllowed(true)
-                alert("Now you are allowed to download.")
+                toast.success("Now you are allowed to download.")
                 console.log(response)
             }
             catch(error) {
@@ -98,8 +118,15 @@ export default function Home() {
             }
         }
         else {
-            alert("Must connect wallet.")
+            toast.error("Must connect wallet.")
         }
+    }
+
+    const triggerOverlay = () => {
+        setGnerating(true)
+        setTimeout(() => {
+            setGnerating(false)
+        }, 3000)
     }
 
     const onTraitSelect = (traitIndex: number, itemIndex: number, item: StaticImageData) => {
@@ -109,7 +136,9 @@ export default function Home() {
 
         context?.clearRect(0, 0, canvas.current?.width || CANVAS_WIDTH, canvas.current?.height || CANVAS_HEIGHT)
 
+        setGnerating(true)
         drawCanvas(traits, 0)
+        setGnerating(false)
     }
 
     const drawCanvas = (traits: Array<{ traitIndex: number, itemIndex: number, item: StaticImageData }>, index: number) => {
@@ -125,7 +154,7 @@ export default function Home() {
 
     const downloadImage = () => {
         if(!downloadAllowed) {
-            alert("Please submit first.")
+            toast.error("Please submit first.")
             return
         }
 
@@ -171,13 +200,14 @@ export default function Home() {
         <main className={styles.main}>
             <div className="flex gap-[100px]">
                 <Container className="flex">
-                    <TraitPalette onTraitSelect={(traitIndex, itemIndex, item) => onTraitSelect(traitIndex, itemIndex, item)} />
+                    <TraitPalette onTraitSelect={(traitIndex, itemIndex, item) => {onTraitSelect(traitIndex, itemIndex, item)} } />
                 </Container>
                 <Container className="flex flex-col gap-[20px]">
                     <Container className="flex bg-[#000000] px-[10px] py-[10px] rounded-lg h-fit">
                         <Container className="flex flex-col">
                             <NFTCanvasContainer className="flex bg-[#0D3043]">
-                                <Container className="flex">
+                                <Container className="flex relative">
+                                    <OverlayContainer active={generating} className="backdrop-blur-lg" />
                                     <NFTCanvas ref={canvas} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} />
                                 </Container>
                                 <Container className="flex flex-col gap-[10px]">
@@ -215,6 +245,7 @@ export default function Home() {
                         </Container>
                     </Container>
                 </Container>
+                <ToastContainer />
             </div>
         </main>
     );
