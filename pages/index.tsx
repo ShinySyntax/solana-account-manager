@@ -5,6 +5,7 @@ import { StaticImageData } from "next/image";
 import { createClient } from "@vercel/kv";
 import { useAccount } from "wagmi";
 import { ToastContainer, toast } from "react-toastify"
+import axios from "axios";
 
 import styles from "../styles/Home.module.css";
 import 'react-toastify/dist/ReactToastify.css';
@@ -104,14 +105,26 @@ export default function Home() {
         if(address) {
             try {
                 const image = canvas.current?.toDataURL('image/png')
-                const response = await kv.set(address, {
+                // const response = await kv.set(address, {
+                //     minted: true,
+                //     image
+                // })
+
+                const data = {
                     minted: true,
                     image
+                }
+
+                const response = await axios.post(`https://wired-weasel-48661.upstash.io/set/${address}`, data, {
+                    headers: {
+                        Authorization: `Bearer ${process.env.NEXT_PUBLIC_KV_REST_API_TOKEN}`
+                    }
                 })
 
                 setDownloadAllowed(true)
                 toast.success("Now you are allowed to download.")
                 console.log(response)
+                setSubmitAllowed(false)
             }
             catch(error) {
                 console.error(error)
@@ -120,13 +133,6 @@ export default function Home() {
         else {
             toast.error("Must connect wallet.")
         }
-    }
-
-    const triggerOverlay = () => {
-        setGnerating(true)
-        setTimeout(() => {
-            setGnerating(false)
-        }, 3000)
     }
 
     const onTraitSelect = (traitIndex: number, itemIndex: number, item: StaticImageData) => {
