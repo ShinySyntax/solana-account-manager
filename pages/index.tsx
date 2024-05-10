@@ -88,8 +88,8 @@ export default function Home() {
 
     const [downloadAllowed, setDownloadAllowed] = useState<boolean>(false)
     const [submitAllowed, setSubmitAllowed] = useState<boolean>(false)
-    const [generating, setGnerating] = useState<boolean>(false)
 
+    const [binaryImage, setBinaryImage] = useState('')
 
     const kv = createClient({
         url: process.env.NEXT_PUBLIC_KV_REST_API_URL as string,
@@ -142,9 +142,7 @@ export default function Home() {
 
         context?.clearRect(0, 0, canvas.current?.width || CANVAS_WIDTH, canvas.current?.height || CANVAS_HEIGHT)
 
-        setGnerating(true)
         drawCanvas(traits, 0)
-        setGnerating(false)
     }
 
     const drawCanvas = (traits: Array<{ traitIndex: number, itemIndex: number, item: StaticImageData }>, index: number) => {
@@ -153,12 +151,21 @@ export default function Home() {
         image.onload = () => {
             context?.drawImage(image, 0, 0, canvas.current?.width || CANVAS_WIDTH, canvas.current?.height || CANVAS_HEIGHT)
             if (index < traits.length - 1) {
-                drawCanvas(traits, index + 1)
+                    drawCanvas(traits, index + 1)
             }
         }
     }
 
     const downloadImage = () => {
+        if(!submitAllowed && !!binaryImage) {
+            const link = document.createElement('a')
+            link.download = "nft-collection.png"
+            link.href = binaryImage || ""
+            link.click()
+
+            return
+        }
+
         if(!downloadAllowed) {
             toast.error("Please submit first.")
             return
@@ -184,7 +191,7 @@ export default function Home() {
         (async () => {
             try {
                 if(address) {
-                    const response = await kv.get(address)
+                    const response: { image: string } | null = await kv.get(address)
 
                     console.log(response)
 
@@ -193,6 +200,7 @@ export default function Home() {
                     }
                     else {
                         setSubmitAllowed(false)
+                        setBinaryImage(response?.image)
                     }
                 }
             }
@@ -213,7 +221,6 @@ export default function Home() {
                         <Container className="flex flex-col">
                             <NFTCanvasContainer className="flex bg-[#0D3043]">
                                 <Container className="flex relative">
-                                    <OverlayContainer active={generating} className="backdrop-blur-lg" />
                                     <NFTCanvas ref={canvas} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} />
                                 </Container>
                                 <Container className="flex flex-col gap-[10px]">

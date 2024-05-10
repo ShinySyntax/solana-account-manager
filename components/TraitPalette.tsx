@@ -7,6 +7,7 @@ import { useAccount } from "wagmi"
 import { Container, H1, H3, Button } from "./common"
 import { traits } from "../constants"
 import { backgrounds, bases, restrict } from "../constants/image"
+import { base } from "viem/chains"
 
 const TraitPaletteContainer = styled(Container)({
     position: "relative",
@@ -71,12 +72,12 @@ interface TraitPalettePropType {
 }
 
 const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
-    let activeTraits:{ [key: number]: number } = {}
-
     const { isConnected } = useAccount()
 
     const [activeItemInTraits, setActiveItemInTraits] = useState<{ [key: number]: number }>()
     const [traitList, setTraitList] = useState<Array<{ name: string, items: Array<StaticImageData> }>>([])
+    const [backgroundList, setBackgroundList] = useState<{ name: string, items: Array<StaticImageData>}>({ name: '',  items: [] })
+    const [baseList, setBaseList] = useState<{ name: string, items: Array<StaticImageData> }>({ name: '', items: [] })
 
     const [backgroundIndex, setBackgroundIndex] = useState<number>(0)
     const [baseIndex, setBaseIndex] = useState<number>(0)
@@ -102,7 +103,8 @@ const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
         traits.forEach((trait, index) => {
             onTraitSelect(index + 2, 0, trait.items[0][0])
         })
-    }, [onTraitSelect])
+        console.log("changed1")
+    }, [])
 
     useEffect(() => {
         traits.forEach((trait, index) => {
@@ -114,6 +116,7 @@ const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
             4: 0,
             5: 0
         })
+        console.log("changed2")
     }, [onTraitSelect, baseIndex])
 
     useEffect(() => {
@@ -122,7 +125,15 @@ const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
             preTraits.push({ name: trait.name, items: trait.items[baseIndex] })
         })
         setTraitList(preTraits)
+        console.log("changed3")
     }, [baseIndex])
+
+    useEffect(() => {
+        setBackgroundList(backgrounds)
+        setBaseList(bases)
+
+        console.log("changed4")
+    }, [])
 
     return (
         <TraitPaletteContainer className="flex flex-col">
@@ -137,7 +148,7 @@ const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
                         </Container>
                         <TraitsContainer className="flex traits-container" style={{ width: "500px", overflowX: "auto", gap: "10px", padding: "5px" }}>
                             {
-                                backgrounds.items.map((item, item_index) =>
+                                backgroundList.items.map((item, item_index) =>
                                     <TraitButton key={item_index} active={backgroundIndex === item_index} onClick={() => handleBackgroundSelection(0, item_index, item)}>
                                         <TraitThumbnail alt="thumbnail image" key={item_index} src={item} />
                                     </TraitButton>
@@ -153,7 +164,7 @@ const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
                         </Container>
                         <TraitsContainer className="flex traits-container" style={{ width: "500px", overflowX: "auto", gap: "10px", padding: "5px" }}>
                             {
-                                bases.items.map((item, item_index) =>
+                                baseList.items.map((item, item_index) =>
                                     <TraitButton key={item_index} active={baseIndex === item_index} onClick={() => handleBaseSelection(1, item_index, item)}>
                                         <TraitThumbnail alt="thumbnail image" key={item_index} src={item} />
                                     </TraitButton>
