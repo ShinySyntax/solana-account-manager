@@ -145,6 +145,8 @@ import Mouth_5_5 from "../assets/traits/Tremp/Mouth/Smile.png"
 
 import Restrict from "../assets/images/restrict.png"
 
+import DefaultCanvas from "../assets/images/default.png"
+
 export const backgrounds = {
     trait: "background",
     name: "Background",
@@ -158,6 +160,8 @@ export const bases = {
 }
 
 export const restrict = Restrict 
+
+export const defaultCanvas = DefaultCanvas
 
 const traits = [
     {

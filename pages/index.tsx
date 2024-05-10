@@ -14,6 +14,8 @@ import { TraitPalette, SketchPane, CustomConnectButton } from "../components";
 import { Container, Canvas, Button, H1 } from "../components/common"
 import InputBox from "../components/Input";
 
+import { defaultCanvas } from "../constants/image";
+
 const HomePageContainer = styled(Container)({
     display: "flex",
     padding: "10px",
@@ -91,6 +93,8 @@ export default function Home() {
 
     const [binaryImage, setBinaryImage] = useState('')
 
+    const [onSubmit, setOnSubmit] = useState(false)
+
     const kv = createClient({
         url: process.env.NEXT_PUBLIC_KV_REST_API_URL as string,
         token: process.env.NEXT_PUBLIC_KV_REST_API_TOKEN as string
@@ -101,6 +105,8 @@ export default function Home() {
             toast.error("You already minted.")
             return
         }
+
+        setOnSubmit(true)
 
         if(address) {
             try {
@@ -136,6 +142,8 @@ export default function Home() {
     }
 
     const onTraitSelect = (traitIndex: number, itemIndex: number, item: StaticImageData) => {
+        setOnSubmit(false)
+        
         const preTraits = traits
         preTraits[traitIndex] = { traitIndex, itemIndex, item }
         setTraits(preTraits)
@@ -160,7 +168,9 @@ export default function Home() {
     }
 
     const downloadImage = () => {
-        if(!submitAllowed && !!binaryImage) {
+        if(!downloadAllowed && !submitAllowed && !!binaryImage && binaryImage !== '') {
+            console.log("download cache")
+
             const link = document.createElement('a')
             link.download = "nft-collection.png"
             link.href = binaryImage || ""
@@ -182,6 +192,15 @@ export default function Home() {
 
         setSubmitAllowed(false)
         setDownloadAllowed(false)
+    }
+
+    const initializeCanvas = () => {
+        const image = new Image()
+        image.src = defaultCanvas.src
+        image.onload = () => {
+            context?.drawImage(image, 0, 0, canvas.current?.width || CANVAS_WIDTH, canvas.current?.height || CANVAS_HEIGHT)
+            console.log("canvas initialize")
+        }
     }
 
     useEffect(() => {
@@ -217,7 +236,7 @@ export default function Home() {
         <main className={styles.main}>
             <div className="flex gap-[100px]">
                 <Container className="flex">
-                    <TraitPalette onTraitSelect={(traitIndex, itemIndex, item) => {onTraitSelect(traitIndex, itemIndex, item)} } />
+                    <TraitPalette onSubmit={onSubmit} onTraitSelect={(traitIndex, itemIndex, item) => {onTraitSelect(traitIndex, itemIndex, item)} } />
                 </Container>
                 <Container className="flex flex-col gap-[20px]">
                     <Container className="flex bg-[#000000] px-[10px] py-[10px] rounded-lg h-fit">

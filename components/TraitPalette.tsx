@@ -69,9 +69,10 @@ const OverlayContainer = styled(Container)<{ active?: boolean }>(({ active }) =>
 
 interface TraitPalettePropType {
     onTraitSelect: (traitIndex: number, itemIndex: number, item: StaticImageData) => void
+    onSubmit?: boolean
 }
 
-const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
+const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect, onSubmit }) => {
     const { isConnected } = useAccount()
 
     const [activeItemInTraits, setActiveItemInTraits] = useState<{ [key: number]: number }>()
@@ -107,10 +108,12 @@ const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
     }, [])
 
     useEffect(() => {
+        if(onSubmit) return
+
         traits.forEach((trait, index) => {
             onTraitSelect(index + 2, 0, trait.items[baseIndex][0])
         })
-        // initTraits(0)
+
         setActiveItemInTraits({
             2: 0,
             3: 0,
