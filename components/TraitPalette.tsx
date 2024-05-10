@@ -110,6 +110,7 @@ const TraitPalette: React.FC<TraitPalettePropType> = ({ onTraitSelect }) => {
         traits.forEach((trait, index) => {
             onTraitSelect(index + 2, 0, trait.items[baseIndex][0])
         })
+        // initTraits(0)
         setActiveItemInTraits({
             2: 0,
             3: 0,

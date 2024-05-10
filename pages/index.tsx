@@ -146,6 +146,9 @@ export default function Home() {
     }
 
     const drawCanvas = (traits: Array<{ traitIndex: number, itemIndex: number, item: StaticImageData }>, index: number) => {
+        if(index === 0) {
+            context?.clearRect(0, 0, canvas.current?.width || CANVAS_WIDTH, canvas.current?.height || CANVAS_HEIGHT)
+        }
         const image = new Image()
         image.src = traits[index].item.src
         image.onload = () => {
